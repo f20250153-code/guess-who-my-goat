@@ -1,9 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import { motion } from "framer-motion";
 import clsx from "clsx";
 import type { Character } from "@/types/character";
-import { getAvatarPalette, getInitials, getCharacterSubtitle } from "@/lib/character-utils";
+import { getAvatarPalette, getInitials, getCharacterSubtitle, getCharacterImageUrl } from "@/lib/character-utils";
 import { EliminationOverlay } from "./EliminationOverlay";
 
 interface CharacterCardProps {
@@ -27,6 +28,9 @@ export function CharacterCard({
 }: CharacterCardProps) {
   const palette = getAvatarPalette(character.id);
   const subtitle = getCharacterSubtitle(character);
+  const imageUrl = faceDown ? null : getCharacterImageUrl(character);
+  const [imageFailed, setImageFailed] = useState(false);
+  const showPhoto = Boolean(imageUrl) && !imageFailed;
 
   return (
     <motion.button
@@ -54,12 +58,26 @@ export function CharacterCard({
         !interactive && "cursor-default",
       )}
     >
-      <div
-        className="mb-2 flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold sm:h-14 sm:w-14 sm:text-base"
-        style={{ background: faceDown ? "var(--bg-elevated-2)" : palette.bg, color: palette.fg }}
-      >
-        {faceDown ? "?" : getInitials(character.name)}
-      </div>
+      {showPhoto ? (
+        // External, dynamically-sourced photo from a data file — next/image
+        // would require pre-registering every possible remote host.
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
+          src={imageUrl ?? undefined}
+          alt=""
+          loading="lazy"
+          referrerPolicy="no-referrer"
+          onError={() => setImageFailed(true)}
+          className="mb-2 h-12 w-12 rounded-full object-cover sm:h-14 sm:w-14"
+        />
+      ) : (
+        <div
+          className="mb-2 flex h-12 w-12 items-center justify-center rounded-full text-sm font-bold sm:h-14 sm:w-14 sm:text-base"
+          style={{ background: faceDown ? "var(--bg-elevated-2)" : palette.bg, color: palette.fg }}
+        >
+          {faceDown ? "?" : getInitials(character.name)}
+        </div>
+      )}
       {!faceDown && (
         <>
           <p className="line-clamp-2 text-[11px] font-semibold leading-tight sm:text-xs">
@@ -77,3 +95,4 @@ export function CharacterCard({
     </motion.button>
   );
 }
+

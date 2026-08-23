@@ -19,7 +19,10 @@ export type QuestionGroup =
   | "sport"
   | "age"
   | "achievements"
-  | "origin";
+  | "origin"
+  /** A freeform, AI-judged question — not tied to a typed attribute, so it
+   * can't auto-eliminate candidates the way structured questions do. */
+  | "freeform";
 
 export interface Question {
   id: string;

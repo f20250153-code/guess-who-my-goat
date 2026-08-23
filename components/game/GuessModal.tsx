@@ -5,7 +5,7 @@ import { AlertTriangle } from "lucide-react";
 import type { Character } from "@/types/character";
 import { Modal } from "@/components/shared/Modal";
 import { Button } from "@/components/shared/Button";
-import { getAvatarPalette, getInitials } from "@/lib/character-utils";
+import { getAvatarPalette, getInitials, getCharacterImageUrl } from "@/lib/character-utils";
 
 interface GuessModalProps {
   open: boolean;
@@ -37,6 +37,7 @@ export function GuessModal({ open, onClose, candidates, onConfirm }: GuessModalP
           <div className="grid max-h-[50vh] grid-cols-3 gap-2.5 overflow-y-auto pr-1 sm:grid-cols-4">
             {candidates.map((c) => {
               const palette = getAvatarPalette(c.id);
+              const imageUrl = getCharacterImageUrl(c);
               const isSelected = c.id === selectedId;
               return (
                 <button
@@ -50,12 +51,7 @@ export function GuessModal({ open, onClose, candidates, onConfirm }: GuessModalP
                       : "border-border bg-bg-elevated-2 hover:border-border-strong"
                   }`}
                 >
-                  <div
-                    className="mb-1.5 flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold"
-                    style={{ background: palette.bg, color: palette.fg }}
-                  >
-                    {getInitials(c.name)}
-                  </div>
+                  <CandidateAvatar name={c.name} imageUrl={imageUrl} palette={palette} />
                   <p className="line-clamp-2 text-[11px] font-semibold leading-tight">{c.name}</p>
                 </button>
               );
@@ -94,5 +90,42 @@ export function GuessModal({ open, onClose, candidates, onConfirm }: GuessModalP
         )
       )}
     </Modal>
+  );
+}
+
+function CandidateAvatar({
+  name,
+  imageUrl,
+  palette,
+}: {
+  name: string;
+  imageUrl: string | null;
+  palette: { bg: string; fg: string };
+}) {
+  const [failed, setFailed] = useState(false);
+
+  if (imageUrl && !failed) {
+    return (
+      // External, dynamically-sourced photo; see CharacterCard for the
+      // same pattern and rationale.
+      // eslint-disable-next-line @next/next/no-img-element
+      <img
+        src={imageUrl}
+        alt=""
+        loading="lazy"
+        referrerPolicy="no-referrer"
+        onError={() => setFailed(true)}
+        className="mb-1.5 h-10 w-10 rounded-full object-cover"
+      />
+    );
+  }
+
+  return (
+    <div
+      className="mb-1.5 flex h-10 w-10 items-center justify-center rounded-full text-xs font-bold"
+      style={{ background: palette.bg, color: palette.fg }}
+    >
+      {getInitials(name)}
+    </div>
   );
 }

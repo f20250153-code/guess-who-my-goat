@@ -2,8 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ChevronDown, History, MessageCircleQuestion, Send } from "lucide-react";
-import type { Character } from "@/types/character";
+import { ChevronDown, History, Loader2, MessageCircleQuestion, Send, Sparkles } from "lucide-react";
+import type { Character, CharacterAttributes } from "@/types/character";
 import type { AskedQuestion, Question, QuestionGroup } from "@/types/question";
 import { getAvailableQuestions, isSmartQuestion } from "@/lib/question-engine";
 import { QuestionButton } from "./QuestionButton";
@@ -17,6 +17,13 @@ interface QuestionPanelProps {
   /** Overrides the built-in question bank — used for custom packs, whose
    * questions are generated on the fly from their freeform attributes. */
   pool?: Question[];
+  /** The secret character's attributes (name withheld) and whether this
+   * is a custom pack — sent to /api/ask so freeform questions can be
+   * judged. Omit to disable freeform questions entirely (falls back to
+   * the suggested-questions hint). */
+  secretAttributes?: CharacterAttributes;
+  isCustomPack?: boolean;
+  onFreeformResult?: (questionText: string, answer: boolean) => void;
 }
 
 const GROUP_LABELS: Record<QuestionGroup, string> = {
@@ -27,7 +34,10 @@ const GROUP_LABELS: Record<QuestionGroup, string> = {
   age: "Age",
   achievements: "Achievements",
   origin: "Origin",
+  freeform: "Your questions",
 };
+
+type AskState = "idle" | "loading" | "error";
 
 export function QuestionPanel({
   categoryId,
@@ -36,9 +46,13 @@ export function QuestionPanel({
   canAsk,
   onAsk,
   pool,
+  secretAttributes,
+  isCustomPack = false,
+  onFreeformResult,
 }: QuestionPanelProps) {
   const [customText, setCustomText] = useState("");
   const [customHint, setCustomHint] = useState<string | null>(null);
+  const [askState, setAskState] = useState<AskState>("idle");
   const [historyOpen, setHistoryOpen] = useState(true);
 
   const askedIds = useMemo(() => askedQuestions.map((aq) => aq.question.id), [askedQuestions]);
@@ -62,11 +76,60 @@ export function QuestionPanel({
     return map;
   }, [available]);
 
-  function handleCustomSubmit(e: React.FormEvent) {
+  async function handleCustomSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!customText.trim()) return;
-    setCustomHint("Try one of the suggested questions below — free-form questions aren't supported yet.");
-    setCustomText("");
+    const text = customText.trim();
+    if (!text || askState === "loading") return;
+
+    // No secret-character data wired up (or the feature is disabled on
+    // this deployment) — fall back to the original static hint rather
+    // than attempting a request that can't succeed.
+    if (!secretAttributes || !onFreeformResult) {
+      setCustomHint("Try one of the suggested questions below — free-form questions aren't enabled here.");
+      return;
+    }
+
+    setAskState("loading");
+    setCustomHint(null);
+
+    try {
+      const res = await fetch("/api/ask", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ question: text, attributes: secretAttributes, isCustomPack }),
+      });
+
+      if (res.status === 503) {
+        setCustomHint(
+          "AI questions aren't set up on this deployment yet. Try one of the suggested questions below.",
+        );
+        setAskState("idle");
+        return;
+      }
+      if (!res.ok) {
+        setCustomHint("Couldn't reach the AI judge right now — try again, or use a suggested question.");
+        setAskState("error");
+        return;
+      }
+
+      const data: { answer?: "YES" | "NO" | "UNKNOWN" | "INVALID" } = await res.json();
+
+      if (data.answer === "YES" || data.answer === "NO") {
+        onFreeformResult(text, data.answer === "YES");
+        setCustomText("");
+        setCustomHint(null);
+      } else if (data.answer === "INVALID") {
+        setCustomHint(
+          "That's not a fair yes/no question about who they are — try rephrasing, or use Make a Guess if you're confident.",
+        );
+      } else {
+        setCustomHint("Not enough information to answer that confidently — try a different question.");
+      }
+      setAskState("idle");
+    } catch {
+      setCustomHint("Couldn't reach the AI judge right now — try again, or use a suggested question.");
+      setAskState("error");
+    }
   }
 
   return (
@@ -84,19 +147,31 @@ export function QuestionPanel({
               value={customText}
               onChange={(e) => setCustomText(e.target.value)}
               placeholder="Type your own question…"
-              disabled={!canAsk}
+              disabled={!canAsk || askState === "loading"}
+              maxLength={200}
               className="h-10 flex-1 rounded-[8px] border border-border bg-bg-elevated px-3 text-sm placeholder:text-text-faint focus-visible:outline-2 focus-visible:outline-secondary disabled:opacity-50"
               aria-label="Custom question"
             />
             <button
               type="submit"
-              disabled={!canAsk}
+              disabled={!canAsk || askState === "loading"}
               aria-label="Submit custom question"
               className="flex h-10 w-10 shrink-0 items-center justify-center rounded-[8px] bg-bg-elevated-2 text-text-muted hover:text-text disabled:opacity-40"
             >
-              <Send className="h-4 w-4" />
+              {askState === "loading" ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Send className="h-4 w-4" />
+              )}
             </button>
           </div>
+          {secretAttributes && onFreeformResult && (
+            <p className="mt-1.5 flex items-center gap-1 text-[11px] text-text-faint">
+              <Sparkles className="h-3 w-3" aria-hidden="true" />
+              AI-judged — answers inform you, but won&apos;t auto-eliminate. Tap cards yourself once
+              you know.
+            </p>
+          )}
           {customHint && <p className="mt-2 text-xs text-warning">{customHint}</p>}
         </form>
 
@@ -172,6 +247,12 @@ export function QuestionPanel({
                   >
                     <span className="text-text-muted">
                       <span className="mr-1.5 font-mono text-text-faint">Q{aq.questionNumber}</span>
+                      {aq.question.group === "freeform" && (
+                        <Sparkles
+                          className="mr-1 inline h-3 w-3 text-primary"
+                          aria-label="AI-judged question"
+                        />
+                      )}
                       {aq.question.text}
                     </span>
                     <span

@@ -28,7 +28,10 @@ export function Footer() {
             Your Stats
           </Link>
         </nav>
-        <p className="text-xs text-text-faint">© {new Date().getFullYear()} Guess Who. For friends, everywhere.</p>
+        <p className="text-xs text-text-faint">
+          © {new Date().getFullYear()} Guess Who. For friends, everywhere. Some photos via Wikipedia,
+          used under their respective licenses.
+        </p>
       </div>
     </footer>
   );

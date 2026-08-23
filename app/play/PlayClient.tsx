@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Infinity as InfinityIcon, Zap, ListChecks, Flame, ArrowLeft } from "lucide-react";
+import { Infinity as InfinityIcon, Zap, ListChecks, Flame, ArrowLeft, Eye, EyeOff, Users } from "lucide-react";
 import type { Category, GameModeId, GameState } from "@/types/game";
 import type { Question } from "@/types/question";
 import { categories, getCategoryById } from "@/data/categories";
@@ -16,6 +16,7 @@ import {
   makeGuess,
   forceEndGame,
   buildGameResult,
+  recordFreeformAnswer,
 } from "@/lib/game-engine";
 import { decodePack } from "@/lib/pack-utils";
 import { buildCustomPackQuestions } from "@/lib/question-engine";
@@ -29,7 +30,17 @@ import { Button } from "@/components/shared/Button";
 import { Modal } from "@/components/shared/Modal";
 import { EmptyState } from "@/components/shared/EmptyState";
 
-type Phase = "category" | "mode" | "countdown" | "playing" | "result";
+type Phase =
+  | "category"
+  | "mode"
+  | "friend-handoff"
+  | "friend-select"
+  | "friend-handback"
+  | "countdown"
+  | "playing"
+  | "result";
+
+type SecretPicker = "random" | "friend";
 
 const MODE_ICON: Record<GameModeId, React.ComponentType<{ className?: string }>> = {
   classic: InfinityIcon,
@@ -91,6 +102,8 @@ export function PlayClient() {
   const [phase, setPhase] = useState<Phase>(initial.phase);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(initial.category);
   const [selectedMode, setSelectedMode] = useState<GameModeId>("classic");
+  const [secretPicker, setSecretPicker] = useState<SecretPicker>("random");
+  const [friendSelectedId, setFriendSelectedId] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
   const [countdownStep, setCountdownStep] = useState<number>(3);
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
@@ -104,12 +117,13 @@ export function PlayClient() {
       categoryId: selectedCategory.id,
       mode: selectedMode,
       characters: selectedCategory.characters,
+      forcedSecretId: secretPicker === "friend" && friendSelectedId ? friendSelectedId : undefined,
     });
     setGameState(state);
     setPhase("playing");
     const modeConfig = GAME_MODES[selectedMode];
     setSecondsLeft(modeConfig.timeLimitSeconds ?? null);
-  }, [selectedCategory, selectedMode]);
+  }, [selectedCategory, selectedMode, secretPicker, friendSelectedId]);
 
   // Countdown sequence: 3 -> 2 -> 1 -> GO -> start.
   useEffect(() => {
@@ -161,11 +175,25 @@ export function PlayClient() {
 
   function handleSelectMode(mode: GameModeId) {
     setSelectedMode(mode);
-    setPhase("countdown");
+    if (secretPicker === "friend") {
+      setFriendSelectedId(null);
+      setPhase("friend-handoff");
+    } else {
+      setPhase("countdown");
+    }
+  }
+
+  function handleFriendPick(characterId: string) {
+    setFriendSelectedId(characterId);
+    setPhase("friend-handback");
   }
 
   function handleAsk(question: Question) {
     setGameState((prev) => (prev ? answerQuestion(prev, question) : prev));
+  }
+
+  function handleFreeformResult(questionText: string, answer: boolean) {
+    setGameState((prev) => (prev ? recordFreeformAnswer(prev, questionText, answer) : prev));
   }
 
   function handleToggleEliminate(id: string) {
@@ -184,13 +212,20 @@ export function PlayClient() {
 
   function handleRestart() {
     if (!selectedCategory) return;
-    setPhase("countdown");
+    if (secretPicker === "friend") {
+      setFriendSelectedId(null);
+      setPhase("friend-handoff");
+    } else {
+      setPhase("countdown");
+    }
   }
 
   function handleChangeCategory() {
     setSelectedCategory(null);
     setGameState(null);
     setSecondsLeft(null);
+    setSecretPicker("random");
+    setFriendSelectedId(null);
     setPhase("category");
   }
 
@@ -275,6 +310,42 @@ export function PlayClient() {
         <h1 className="mt-2 font-display text-4xl font-bold tracking-tight sm:text-5xl">
           Choose a mode
         </h1>
+
+        <div className="mt-6 flex items-center gap-3 rounded-[12px] border border-border bg-bg-elevated p-3">
+          <Users className="h-4 w-4 shrink-0 text-text-muted" aria-hidden="true" />
+          <p className="flex-1 text-xs text-text-muted">Who picks the secret character?</p>
+          <div className="flex gap-1.5">
+            <button
+              type="button"
+              onClick={() => setSecretPicker("random")}
+              className={`rounded-[8px] px-3 py-1.5 text-xs font-semibold transition-colors ${
+                secretPicker === "random"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-bg-elevated-2 text-text-muted hover:text-text"
+              }`}
+            >
+              Random
+            </button>
+            <button
+              type="button"
+              onClick={() => setSecretPicker("friend")}
+              className={`rounded-[8px] px-3 py-1.5 text-xs font-semibold transition-colors ${
+                secretPicker === "friend"
+                  ? "bg-primary text-primary-foreground"
+                  : "bg-bg-elevated-2 text-text-muted hover:text-text"
+              }`}
+            >
+              A friend picks
+            </button>
+          </div>
+        </div>
+        {secretPicker === "friend" && (
+          <p className="mt-2 text-xs text-text-faint">
+            After choosing a mode, hand the device to your friend — they&apos;ll privately pick who
+            you have to guess, then hand it back.
+          </p>
+        )}
+
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {Object.values(GAME_MODES).map((mode) => {
             const Icon = MODE_ICON[mode.id];
@@ -294,6 +365,71 @@ export function PlayClient() {
             );
           })}
         </div>
+      </div>
+    );
+  }
+
+  // ---------------------------------------------------------- FRIEND HANDOFF
+  if (phase === "friend-handoff" && selectedCategory) {
+    return (
+      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-4 text-center">
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15 text-primary">
+          <EyeOff className="h-7 w-7" aria-hidden="true" />
+        </div>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Pass the device</h1>
+        <p className="mt-3 text-text-muted">
+          Hand your phone or laptop to your friend. On the next screen they&apos;ll privately pick
+          who you have to guess from {selectedCategory.name} — don&apos;t peek!
+        </p>
+        <Button size="lg" className="mt-8" onClick={() => setPhase("friend-select")}>
+          I&apos;m the friend — let me pick
+        </Button>
+      </div>
+    );
+  }
+
+  // ----------------------------------------------------------- FRIEND SELECT
+  if (phase === "friend-select" && selectedCategory) {
+    return (
+      <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6">
+        <div className="mb-6 text-center">
+          <div className="mx-auto mb-3 flex h-11 w-11 items-center justify-center rounded-full bg-primary/15 text-primary">
+            <Eye className="h-5 w-5" aria-hidden="true" />
+          </div>
+          <h1 className="font-display text-2xl font-bold tracking-tight sm:text-3xl">
+            Pick their secret character
+          </h1>
+          <p className="mt-2 text-sm text-text-muted">
+            Tap a character below. Your friend won&apos;t see this screen.
+          </p>
+        </div>
+        <CharacterGrid
+          characters={selectedCategory.characters}
+          eliminatedIds={new Set()}
+          onToggleEliminate={() => {}}
+          selectMode
+          selectedId={friendSelectedId}
+          onSelect={handleFriendPick}
+        />
+      </div>
+    );
+  }
+
+  // --------------------------------------------------------- FRIEND HANDBACK
+  if (phase === "friend-handback") {
+    return (
+      <div className="mx-auto flex min-h-[70vh] max-w-md flex-col items-center justify-center px-4 text-center">
+        <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-full bg-success/15 text-success">
+          <Eye className="h-7 w-7" aria-hidden="true" />
+        </div>
+        <h1 className="font-display text-3xl font-bold tracking-tight">Locked in!</h1>
+        <p className="mt-3 text-text-muted">
+          The secret character has been chosen. Hand the device back to the guesser — no peeking at
+          the board before they start.
+        </p>
+        <Button size="lg" className="mt-8" onClick={() => setPhase("countdown")}>
+          I&apos;m the guesser — start the round
+        </Button>
       </div>
     );
   }
@@ -340,6 +476,9 @@ export function PlayClient() {
       canAsk,
       onAsk: handleAsk,
       pool: selectedCategory.id === "custom" ? customPool : undefined,
+      secretAttributes: gameState.secretCharacter.attributes,
+      isCustomPack: selectedCategory.id === "custom",
+      onFreeformResult: handleFreeformResult,
     };
 
     return (

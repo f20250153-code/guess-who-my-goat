@@ -1,0 +1,246 @@
+{
+  "fb-messi": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c8/Leo_Messi_Argentina_v_Egypt_7_July_2026-1.jpg/330px-Leo_Messi_Argentina_v_Egypt_7_July_2026-1.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Lionel Messi"
+  },
+  "fb-ronaldo-cr7": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/Cristiano_Ronaldo_Croatia_v_Portugal_2_July_2026-075_%28cropped%29.jpg/330px-Cristiano_Ronaldo_Croatia_v_Portugal_2_July_2026-075_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Cristiano Ronaldo"
+  },
+  "fb-neymar": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c0/Neymar_Junior_Brazil_V_Morocco_13_June_2026-40.jpg/330px-Neymar_Junior_Brazil_V_Morocco_13_June_2026-40.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Neymar Jr."
+  },
+  "fb-mbappe": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/95/Kylian_Mbappe_France_v_Senegal_16_June_2026-391_%28cropped%29.jpg/330px-Kylian_Mbappe_France_v_Senegal_16_June_2026-391_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Kylian Mbappé"
+  },
+  "fb-haaland": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/43/Erling_Haaland_Morocco_v_Norway_7_June_2026-51.jpg/330px-Erling_Haaland_Morocco_v_Norway_7_June_2026-51.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Erling Haaland"
+  },
+  "fb-debruyne": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/Kevin_De_Bruyne_USMNT_v_Belgium_Mar_28_2026-64_%28cropped%29.jpg/330px-Kevin_De_Bruyne_USMNT_v_Belgium_Mar_28_2026-64_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Kevin De Bruyne"
+  },
+  "fb-lewandowski": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/26/2019147183134_2019-05-27_Fussball_1.FC_Kaiserslautern_vs_FC_Bayern_M%C3%BCnchen_-_Sven_-_1D_X_MK_II_-_0228_-_B70I8527_%28cropped%29.jpg/330px-2019147183134_2019-05-27_Fussball_1.FC_Kaiserslautern_vs_FC_Bayern_M%C3%BCnchen_-_Sven_-_1D_X_MK_II_-_0228_-_B70I8527_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Robert Lewandowski"
+  },
+  "fb-salah": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a6/Mohamed_Salah_Argentina_v_Egypt_7_July_2026-163_%28cropped%29.jpg/330px-Mohamed_Salah_Argentina_v_Egypt_7_July_2026-163_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Mohamed Salah"
+  },
+  "fb-benzema": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/Karim_Benzema_Pick.jpg/330px-Karim_Benzema_Pick.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Karim Benzema"
+  },
+  "fb-modric": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/80/Luka_Modric_Croatia_v_Portugal_2_July_2026-055.jpg/330px-Luka_Modric_Croatia_v_Portugal_2_July_2026-055.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Luka Modrić"
+  },
+  "fb-ronaldinho": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0a/Sports_Festival_2025_-_4_%28cropped%29.jpg/330px-Sports_Festival_2025_-_4_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Ronaldinho"
+  },
+  "cr-dravid": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/17/Rahul_Dravid_in_2024.jpg/330px-Rahul_Dravid_in_2024.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Rahul Dravid"
+  },
+  "ac-reynolds": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/14/Deadpool_2_Japan_Premiere_Red_Carpet_Ryan_Reynolds_%28cropped%29.jpg/330px-Deadpool_2_Japan_Premiere_Red_Carpet_Ryan_Reynolds_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Ryan Reynolds"
+  },
+  "ac-pacino": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5b/Al_Pacino_-_Killing_Castro_-_Q%26A_-_Tribeca_2026_-_by_%40JJxFile-23_%28cropped%29.jpg/330px-Al_Pacino_-_Killing_Castro_-_Q%26A_-_Tribeca_2026_-_by_%40JJxFile-23_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Al Pacino"
+  },
+  "ac-deniro": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c1/Robert_de_Niro_Cannes_Film_Festival_%283x4_cropped%29.jpg/330px-Robert_de_Niro_Cannes_Film_Festival_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Robert De Niro"
+  },
+  "ac-salman": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/Salman_Khan_snapped_at_the_Angry_Young_Men_trailer_launch.jpg/330px-Salman_Khan_snapped_at_the_Angry_Young_Men_trailer_launch.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Salman Khan"
+  },
+  "ac-ranveer": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/3/32/Ranveer_Singh_in_2023_%281%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "attribution": "Wikipedia — Ranveer Singh"
+  },
+  "ac-hrithik": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/9/9c/Hrithik_at_Rado_launch.jpg/330px-Hrithik_at_Rado_launch.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Hrithik Roshan"
+  },
+  "ac-idris": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/3a/Idris_Elba_A_House_of_Dynamite-21_%28cropped%29.jpg/330px-Idris_Elba_A_House_of_Dynamite-21_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Idris Elba"
+  },
+  "as-streep": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/Meryl_Streep-_Press_conference_for_the_film_%22The_Devil_Wears_Prada_2%22_-_55194765350_%28cropped1%29.jpg/330px-Meryl_Streep-_Press_conference_for_the_film_%22The_Devil_Wears_Prada_2%22_-_55194765350_%28cropped1%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Meryl Streep"
+  },
+  "as-scarlett": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ad/Scarlett_Johansson-8588.jpg/330px-Scarlett_Johansson-8588.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Scarlett Johansson"
+  },
+  "as-jlaw": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/fe/Jennifer_Lawrence_in_2018.png/330px-Jennifer_Lawrence_in_2018.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Jennifer Lawrence"
+  },
+  "as-watson": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/7f/Emma_Watson_2013.jpg/330px-Emma_Watson_2013.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Emma Watson"
+  },
+  "as-jolie": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/12/Angelina_Jolie-643531_%28cropped%29.jpg/330px-Angelina_Jolie-643531_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Angelina Jolie"
+  },
+  "as-portman": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/NataliePortman.jpg/330px-NataliePortman.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Natalie Portman"
+  },
+  "as-bullock": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/74/Sandra_Bullock_at_The_Egyptian_Theatre_2024.jpg/330px-Sandra_Bullock_at_The_Egyptian_Theatre_2024.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Sandra Bullock"
+  },
+  "as-zendaya": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Zendaya-byPhilipRomano.jpg/330px-Zendaya-byPhilipRomano.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Zendaya"
+  },
+  "si-beyonce": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Beyonc%C3%A9_-_Tottenham_Hotspur_Stadium_-_1st_June_2023_%2810_of_118%29_%2852946364598%29_%28best_crop%29.jpg/330px-Beyonc%C3%A9_-_Tottenham_Hotspur_Stadium_-_1st_June_2023_%2810_of_118%29_%2852946364598%29_%28best_crop%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Beyoncé"
+  },
+  "si-sheeran": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b2/Ed_Sheeran-6886_%28cropped_2%29.jpg/330px-Ed_Sheeran-6886_%28cropped_2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Ed Sheeran"
+  },
+  "si-bieber": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6c/P20260719DT-1213_President_Donald_J._Trump_and_First_Lady_Melania_Trump_attend_the_FIFA_World_Cup_Final_%28cropped_2%29.jpg/330px-P20260719DT-1213_President_Donald_J._Trump_and_First_Lady_Melania_Trump_attend_the_FIFA_World_Cup_Final_%28cropped_2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Justin Bieber"
+  },
+  "si-rihanna": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/c2/Rihanna_Fenty_2018.png/330px-Rihanna_Fenty_2018.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Rihanna"
+  },
+  "si-weeknd": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/The_Weeknd_Portrait_by_Brian_Ziff.jpg/330px-The_Weeknd_Portrait_by_Brian_Ziff.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — The Weeknd"
+  },
+  "si-shawnmendes": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a4/191125_Shawn_Mendes_at_the_2019_American_Music_Awards.png/330px-191125_Shawn_Mendes_at_the_2019_American_Music_Awards.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Shawn Mendes"
+  },
+  "si-whitney": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/52/Whitney_Houston_%28cropped3%29.JPEG/330px-Whitney_Houston_%28cropped3%29.JPEG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Whitney Houston"
+  },
+  "fp-malala": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/03/Malala_Yousafzai_2023_portrait_2x3.jpg/330px-Malala_Yousafzai_2023_portrait_2x3.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Malala Yousafzai"
+  },
+  "fp-hawking": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/e/eb/Stephen_Hawking.StarChild.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "attribution": "Wikipedia — Stephen Hawking"
+  },
+  "fp-modi": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5f/The_official_portrait_of_Shri_Narendra_Modi%2C_the_Prime_Minister_of_the_Republic_of_India.jpg/330px-The_official_portrait_of_Shri_Narendra_Modi%2C_the_Prime_Minister_of_the_Republic_of_India.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Narendra Modi"
+  },
+  "fp-lincoln": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/57/Abraham_Lincoln_1863_Portrait_%283x4_cropped%29.jpg/330px-Abraham_Lincoln_1863_Portrait_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Abraham Lincoln"
+  },
+  "fp-disney": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/50/Walt_Disney_1946_%28cropped2%29.JPG/330px-Walt_Disney_1946_%28cropped2%29.JPG?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Walt Disney"
+  },
+  "f1-senna": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/9/9f/Ayrton_Senna_Pesawat_RC_Cropped.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "attribution": "Wikipedia — Ayrton Senna"
+  },
+  "bb-embiid": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/13/Joel_Embiid_2019.jpg/330px-Joel_Embiid_2019.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Joel Embiid"
+  },
+  "bb-tatum": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Celtics_at_Wizards_2024-12-044_%28cropped_2%29.jpg/330px-Celtics_at_Wizards_2024-12-044_%28cropped_2%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Jayson Tatum"
+  },
+  "bb-kobe": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/36/Kobe_Bryant_Dec_2014.jpg/330px-Kobe_Bryant_Dec_2014.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Kobe Bryant"
+  },
+  "bb-jordan": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/ae/Michael_Jordan_in_2014.jpg/330px-Michael_Jordan_in_2014.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Michael Jordan"
+  },
+  "bb-shaq": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e5/TechCrunch_Disrupt_2023_-_Day_1_%28cropped%29.jpg/330px-TechCrunch_Disrupt_2023_-_Day_1_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Shaquille O'Neal"
+  },
+  "bb-kareem": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a0/Kareem_Abdul-Jabbar_May_2014.jpg/330px-Kareem_Abdul-Jabbar_May_2014.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Kareem Abdul-Jabbar"
+  },
+  "bb-magic": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/2/29/Magic_Johnson_at_SXSW_2022_%2851958828669%29_%28cropped%29.jpg/330px-Magic_Johnson_at_SXSW_2022_%2851958828669%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Magic Johnson"
+  },
+  "bb-bird": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/b/bb/Larrybird.jpg/330px-Larrybird.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Larry Bird"
+  },
+  "bb-duncan": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/c/cb/Tim_Duncan_Walks_Verizon_Center%27s_Floor_%28cropped%29_%28cropped%29.jpg/330px-Tim_Duncan_Walks_Verizon_Center%27s_Floor_%28cropped%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Tim Duncan"
+  },
+  "bb-garnett": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/60/Kevin_Garnett_2008-01-13.jpg/330px-Kevin_Garnett_2008-01-13.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Kevin Garnett"
+  },
+  "bb-wade": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Dwyane_Wade_e1.jpg/330px-Dwyane_Wade_e1.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Dwyane Wade"
+  },
+  "gm-mrbeast": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/47/MrBeast_in_2026_%28cropped_4%29.png/330px-MrBeast_in_2026_%28cropped_4%29.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — MrBeast"
+  },
+  "gm-dream": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/a/af/A_dream_%28BM_1868%2C0808.9057%29.jpg/330px-A_dream_%28BM_1868%2C0808.9057%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Dream"
+  },
+  "gm-jacksepticeye": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/1/1f/Jacksepticeye_by_Gage_Skidmore_%283x4_cropped%29.jpg/330px-Jacksepticeye_by_Gage_Skidmore_%283x4_cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Jacksepticeye"
+  },
+  "tb-jackma": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/6/6d/20th_Anniversary_Schwab_Foundation_Gala_Dinner_%2844887783681%29_%28cropped%29.jpg/330px-20th_Anniversary_Schwab_Foundation_Gala_Dinner_%2844887783681%29_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Jack Ma"
+  },
+  "fc-harrypotter": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/5/51/Harry_Potter_logo.svg/330px-Harry_Potter_logo.svg.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Harry Potter"
+  },
+  "fc-vader": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/0/04/Darth_Vader_at_Galaxy%E2%80%99s_Edge_%28cropped%29.jpg/330px-Darth_Vader_at_Galaxy%E2%80%99s_Edge_%28cropped%29.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Darth Vader"
+  },
+  "fc-gandalf": {
+    "url": "https://upload.wikimedia.org/wikipedia/en/b/bd/Gandalf_from_The_Trolls_are_Turned_to_Stone_-_J.R.R_Tolkien.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "attribution": "Wikipedia — Gandalf"
+  },
+  "fc-pikachu": {
+    "url": "https://upload.wikimedia.org/wikipedia/en/a/a6/Pok%C3%A9mon_Pikachu_art.png?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail_unscaled",
+    "attribution": "Wikipedia — Pikachu"
+  },
+  "ic-kiranms": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Kiran_Mazumdar-Shaw_HD2014_crop.jpg/330px-Kiran_Mazumdar-Shaw_HD2014_crop.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Kiran Mazumdar-Shaw"
+  },
+  "ic-gulzar": {
+    "url": "https://upload.wikimedia.org/wikipedia/commons/thumb/3/38/Gulzar_2008_-_still_38227.jpg/330px-Gulzar_2008_-_still_38227.jpg?utm_source=en.wikipedia.org&utm_campaign=api&utm_content=thumbnail",
+    "attribution": "Wikipedia — Gulzar"
+  }
+}

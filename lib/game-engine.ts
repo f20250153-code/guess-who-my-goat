@@ -113,6 +113,40 @@ export function answerQuestion(state: GameState, question: Question, overrideAns
   };
 }
 
+/** Records the answer to a freeform, AI-judged question in the question
+ * log and increments the question count — but does NOT filter candidates.
+ * Freeform questions are advisory only: the player reads the answer and
+ * manually eliminates candidates themselves (via eliminateCharacter),
+ * rather than the engine auto-eliminating based on a single LLM judgment
+ * call against only the secret character. This keeps the deterministic
+ * elimination guarantee intact for structured questions while still
+ * letting freeform questions be useful. */
+export function recordFreeformAnswer(state: GameState, questionText: string, answer: boolean): GameState {
+  if (state.status !== "in-progress") return state;
+
+  const freeformQuestion: Question = {
+    id: `freeform-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`,
+    text: questionText,
+    group: "freeform",
+    attribute: "custom",
+    operator: "equals",
+    value: "",
+  };
+
+  const askedQuestion: AskedQuestion = {
+    question: freeformQuestion,
+    answer,
+    questionNumber: state.questionCount + 1,
+    eliminatedCount: 0,
+  };
+
+  return {
+    ...state,
+    askedQuestions: [...state.askedQuestions, askedQuestion],
+    questionCount: state.questionCount + 1,
+  };
+}
+
 /** Manually eliminate a candidate the player has ruled out themselves,
  * independent of any question. */
 export function eliminateCharacter(state: GameState, characterId: string): GameState {

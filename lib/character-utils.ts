@@ -1,4 +1,5 @@
 import type { Character } from "@/types/character";
+import characterImages from "@/data/character-images.json";
 
 /** A restrained set of on-brand background tints used for the generated
  * initials avatar. Picked deterministically per-character so the same
@@ -55,4 +56,19 @@ export function shuffle<T>(items: T[]): T[] {
 
 export function pickRandom<T>(items: T[]): T {
   return items[Math.floor(Math.random() * items.length)];
+}
+
+interface CharacterImageEntry {
+  url: string;
+  attribution?: string;
+}
+
+const imageMap = characterImages as Record<string, CharacterImageEntry>;
+
+/** Real photo URL for a character, if one has been fetched (see
+ * scripts/fetch-images.ts) or supplied directly on the character record.
+ * Returns null when none is available — callers must fall back to the
+ * generated-initials avatar, never show a broken image icon. */
+export function getCharacterImageUrl(character: Character): string | null {
+  return imageMap[character.id]?.url ?? character.image ?? null;
 }
