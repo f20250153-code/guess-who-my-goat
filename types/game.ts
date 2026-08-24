@@ -70,4 +70,10 @@ export interface Category {
    * with fewer than this in their master pool fall back to using the
    * full pool (see lib/board-generator.ts) rather than failing. */
   targetBoardSize?: number;
+  /** True for a category that's just an alternate lens on other
+   * categories' characters (e.g. "Movie Stars" = Actors + Actresses)
+   * rather than its own data source. Data validation skips the
+   * cross-category id-uniqueness and categoryId-match checks for these,
+   * since their characters intentionally also belong to another category. */
+  derived?: boolean;
 }

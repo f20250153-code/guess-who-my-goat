@@ -62,7 +62,7 @@ export interface CharacterAttributes {
   founder?: boolean;
 
   heroOrVillain?: "hero" | "villain" | "anti-hero" | "neutral";
-  origin?: "comics" | "movies" | "games" | "tv" | "literature" | "anime";
+  origin?: "comics" | "movies" | "games" | "tv" | "literature" | "anime" | "books" | "cartoons";
 
   /** Escape hatch for category-specific attributes that don't merit a
    * first-class field yet. Kept intentionally rare — prefer adding a typed

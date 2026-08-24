@@ -17,7 +17,7 @@ const NAV_LINKS = [
 export function Navbar() {
   const pathname = usePathname();
   const [menuOpen, setMenuOpen] = useState(false);
-  const isGameplay = pathname === "/play";
+  const isGameplay = pathname === "/play" || pathname?.startsWith("/play/multiplayer");
 
   return (
     <header className="sticky top-0 z-50 border-b border-border bg-bg/85 backdrop-blur">

@@ -5,8 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, History, Loader2, MessageCircleQuestion, Send, Sparkles } from "lucide-react";
 import type { Character, CharacterAttributes } from "@/types/character";
 import type { AskedQuestion, Question, QuestionGroup } from "@/types/question";
-import { getAvailableQuestions, rankQuestionsByQuality } from "@/lib/question-engine";
-import { generateBoardQuestions } from "@/lib/question-generator";
+import { getAvailableQuestions, rankQuestionsByQuality, filterQuestionsSupportedBy } from "@/lib/question-engine";
+import { generateBoardQuestions, generateNumericBoardQuestions } from "@/lib/question-generator";
 import { questions as builtInQuestions } from "@/data/questions";
 import { QuestionButton } from "./QuestionButton";
 
@@ -66,13 +66,24 @@ export function QuestionPanel({
 
   const effectivePool = useMemo(() => {
     if (pool) return pool; // explicit override (custom packs) — don't add board-generated questions
-    return [...builtInQuestions, ...generateBoardQuestions(categoryId, board ?? candidates)];
+    const effectiveBoard = board ?? candidates;
+    return [
+      ...builtInQuestions,
+      ...generateBoardQuestions(categoryId, effectiveBoard),
+      ...generateNumericBoardQuestions(categoryId, effectiveBoard),
+    ];
   }, [pool, categoryId, board, candidates]);
 
-  const available = useMemo(
-    () => getAvailableQuestions(categoryId, askedIds, effectivePool),
-    [categoryId, askedIds, effectivePool],
-  );
+  // Only ever offer questions the actual secret has data for — otherwise
+  // a "missing data" question would show up askable and (per
+  // canAskQuestion's matching guard in lib/game-engine.ts) silently do
+  // nothing when tapped. Without a secret to check against (shouldn't
+  // normally happen mid-game), fall back to showing everything category-
+  // available rather than hiding the whole list.
+  const available = useMemo(() => {
+    const categoryAvailable = getAvailableQuestions(categoryId, askedIds, effectivePool);
+    return secretAttributes ? filterQuestionsSupportedBy(categoryAvailable, secretAttributes) : categoryAvailable;
+  }, [categoryId, askedIds, effectivePool, secretAttributes]);
 
   const rankedRecommended = useMemo(
     () => rankQuestionsByQuality(available, candidates, 4),

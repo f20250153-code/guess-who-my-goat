@@ -50,12 +50,31 @@ const TEMPLATE_DEFINITIONS: TemplateDefinition[] = [
     maxGenerated: 5,
   },
   {
+    // No categoryIds restriction — Profession is populated for every
+    // non-fictional character (see scripts/generate-data.ts), so this
+    // generates real, board-grounded questions for whichever category is
+    // actually being played, from a one-word sport ("Footballer") to the
+    // dozens of distinct roles Famous Personalities / Indian Celebrities
+    // cover (Politician, Scientist, Poet, Yoga Guru, Emperor...). The
+    // "only keep values that actually discriminate the board" filter
+    // below means a category where everyone shares one profession (e.g.
+    // "Cricketer") just silently produces nothing for this template.
     attribute: "profession",
     arrayValued: true,
     group: "career",
-    categoryIds: ["famous-personalities", "indian-celebrities", "tech-business", "gamers"],
     questionText: (v) => `Are they primarily known as a${/^[aeiou]/i.test(v) ? "n" : ""} ${v.toLowerCase()}?`,
-    maxGenerated: 5,
+    maxGenerated: 8,
+  },
+  {
+    // Mostly a no-op for single-sport categories (everyone shares one
+    // value -> filtered as non-discriminating) but genuinely useful for
+    // multi-sport pools like Indian Celebrities (Cricket, Badminton,
+    // Shooting, Boxing, Athletics...).
+    attribute: "sport",
+    arrayValued: true,
+    group: "sport",
+    questionText: (v) => `Do they compete in ${v.toLowerCase()}?`,
+    maxGenerated: 4,
   },
 ];
 
@@ -117,4 +136,42 @@ export function generateBoardQuestions(categoryId: string, board: Character[]): 
   }
 
   return generated;
+}
+
+/**
+ * Generates numeric threshold questions from the current board's actual
+ * birth years — e.g. "Were they born before 1994?" using this specific
+ * board's median, rather than only the handful of fixed decades in the
+ * static question bank (data/questions.ts). The median is used
+ * specifically because splitting a numeric list at its median is, by
+ * definition, the closest a single threshold can get to an even yes/no
+ * split — the "useful split" requirement this exists to satisfy.
+ * Complements (doesn't replace) the static age questions: both can be
+ * offered side by side since they have distinct ids.
+ */
+export function generateNumericBoardQuestions(categoryId: string, board: Character[]): Question[] {
+  const years = board
+    .map((c) => c.attributes.birthYear)
+    .filter((y): y is number => typeof y === "number");
+
+  if (years.length < 6) return []; // too little numeric data on this board to bother
+
+  const sorted = [...years].sort((a, b) => a - b);
+  const median = sorted[Math.floor(sorted.length / 2)];
+
+  const before = years.filter((y) => y < median).length;
+  const after = years.length - before;
+  if (before === 0 || after === 0) return []; // degenerate — every birth year identical
+
+  return [
+    {
+      id: `gen-birthyear-${median}`,
+      text: `Were they born before ${median}?`,
+      categoryIds: [categoryId],
+      group: "age",
+      attribute: "birthYear",
+      operator: "lessThan",
+      value: median,
+    },
+  ];
 }

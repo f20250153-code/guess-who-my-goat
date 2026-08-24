@@ -10,6 +10,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "fetch-images": "tsx scripts/fetch-images.ts",
+    "generate:data": "tsx scripts/generate-data.ts",
     "validate:data": "tsx scripts/validate-data.ts",
     "smoke-test": "tsx scripts/smoke-test.ts"
   },
@@ -22,7 +23,8 @@
     "lucide-react": "^1.33.0",
     "next": "16.3.2",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "socket.io-client": "^4.8.3"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -37,6 +39,7 @@
     "tailwindcss": "^4",
     "tsx": "^4.23.12",
     "typescript": "^5",
-    "vitest": "^4.1.11"
+    "vitest": "^4.1.11",
+    "xlsx": "^0.18.5"
   }
 }

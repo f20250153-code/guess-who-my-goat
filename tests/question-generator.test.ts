@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { generateBoardQuestions } from "@/lib/question-generator";
+import { generateBoardQuestions, generateNumericBoardQuestions } from "@/lib/question-generator";
 import { evaluateQuestion, getQuestionQuality, rankQuestionsByQuality } from "@/lib/question-engine";
 import type { Character } from "@/types/character";
 
@@ -62,6 +62,41 @@ describe("generateBoardQuestions", () => {
     const generated = generateBoardQuestions("footballers", board);
     const nationalityQuestions = generated.filter((q) => q.attribute === "nationality");
     expect(nationalityQuestions.length).toBeLessThanOrEqual(6);
+  });
+});
+
+describe("generateNumericBoardQuestions", () => {
+  it("generates a median-split birth-year threshold when enough numeric data exists", () => {
+    const board: Character[] = Array.from({ length: 10 }, (_, i) => ({
+      id: `p${i}`,
+      name: `P${i}`,
+      categoryId: "footballers",
+      attributes: { birthYear: 1980 + i }, // 1980..1989
+    }));
+    const generated = generateNumericBoardQuestions("footballers", board);
+    expect(generated).toHaveLength(1);
+    expect(generated[0].attribute).toBe("birthYear");
+    const split = board.filter((c) => (c.attributes.birthYear as number) < (generated[0].value as number));
+    expect(split.length).toBeGreaterThan(0);
+    expect(split.length).toBeLessThan(board.length);
+  });
+
+  it("produces nothing when there isn't enough numeric data on the board", () => {
+    const board: Character[] = [
+      { id: "a", name: "A", categoryId: "fictional", attributes: {} },
+      { id: "b", name: "B", categoryId: "fictional", attributes: {} },
+    ];
+    expect(generateNumericBoardQuestions("fictional", board)).toHaveLength(0);
+  });
+
+  it("produces nothing when every birth year on the board is identical (no possible split)", () => {
+    const board: Character[] = Array.from({ length: 8 }, (_, i) => ({
+      id: `q${i}`,
+      name: `Q${i}`,
+      categoryId: "footballers",
+      attributes: { birthYear: 1990 },
+    }));
+    expect(generateNumericBoardQuestions("footballers", board)).toHaveLength(0);
   });
 });
 

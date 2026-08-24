@@ -33,8 +33,11 @@ console.log("=== Guess Who — Data Validation ===\n");
 
 console.log("Characters:");
 const allIdsGlobal = new Set<string>();
+let derivedCharacterCount = 0;
 for (const category of categories) {
-  console.log(`  ${category.name}: ${category.characters.length}`);
+  console.log(
+    `  ${category.name}: ${category.characters.length}${category.derived ? "  (derived — not counted toward total)" : ""}`,
+  );
 
   const idsInCategory = new Set<string>();
   const namesInCategory = new Set<string>();
@@ -44,15 +47,32 @@ for (const category of categories) {
       error(`[${category.name}] A character is missing an id (name: "${character.name}")`);
       continue;
     }
-    if (allIdsGlobal.has(character.id)) {
-      error(`[${category.name}] Duplicate character id across the whole dataset: "${character.id}"`);
-    }
-    allIdsGlobal.add(character.id);
 
-    if (idsInCategory.has(character.id)) {
-      error(`[${category.name}] Duplicate character id within category: "${character.id}"`);
+    // Derived categories (e.g. "Movie Stars" = Actors + Actresses) are an
+    // alternate view over other categories' characters by design — their
+    // ids legitimately reappear, and their characters carry the derived
+    // category's id rather than their original one. Skip the
+    // cross-dataset/categoryId checks for them; everything else (name,
+    // attributes, popularity) is still worth checking.
+    if (!category.derived) {
+      if (allIdsGlobal.has(character.id)) {
+        error(`[${category.name}] Duplicate character id across the whole dataset: "${character.id}"`);
+      }
+      allIdsGlobal.add(character.id);
+
+      if (idsInCategory.has(character.id)) {
+        error(`[${category.name}] Duplicate character id within category: "${character.id}"`);
+      }
+      idsInCategory.add(character.id);
+
+      if (character.categoryId !== category.id) {
+        error(
+          `[${category.name}] Character "${character.name}" has categoryId "${character.categoryId}", expected "${category.id}"`,
+        );
+      }
+    } else {
+      derivedCharacterCount++;
     }
-    idsInCategory.add(character.id);
 
     if (!character.name || !character.name.trim()) {
       error(`[${category.name}] Character "${character.id}" is missing a name`);
@@ -62,12 +82,6 @@ for (const category of categories) {
         warn(`[${category.name}] Duplicate character name within category: "${character.name}"`);
       }
       namesInCategory.add(nameKey);
-    }
-
-    if (character.categoryId !== category.id) {
-      error(
-        `[${category.name}] Character "${character.name}" has categoryId "${character.categoryId}", expected "${category.id}"`,
-      );
     }
 
     if (!character.attributes || Object.keys(character.attributes).length === 0) {
@@ -84,7 +98,7 @@ for (const category of categories) {
   }
 }
 
-console.log(`\nTotal unique characters: ${allIdsGlobal.size}`);
+console.log(`\nTotal unique characters: ${allIdsGlobal.size}${derivedCharacterCount > 0 ? ` (+ ${derivedCharacterCount} in derived categories)` : ""}`);
 
 console.log("\nQuestions:");
 console.log(`  Built-in question bank: ${questions.length}`);

@@ -126,13 +126,28 @@ export const categories: Category[] = [
     theme: "emerald",
     characters: indianCelebrities,
   },
+  {
+    // Combined pool per spec Phase 12 — Actors + Actresses, deduplicated
+    // by id (their id prefixes never collide: "ac-" vs "as-"). Not a new
+    // data source of its own, just an alternate lens on the two existing
+    // pools, so it stays derived rather than hand-maintained.
+    id: "movie-stars",
+    name: "Movie Stars",
+    description: "Leading men and women from Hollywood to Bollywood.",
+    icon: "Film",
+    emoji: "🌟",
+    theme: "rose",
+    derived: true,
+    characters: [...actors, ...actresses].map((c) => ({ ...c, categoryId: "movie-stars" })),
+  },
 ];
 
 export function getCategoryById(id: string): Category | undefined {
   return categories.find((c) => c.id === id);
 }
 
-export const TOTAL_CHARACTER_COUNT = categories.reduce(
-  (sum, c) => sum + c.characters.length,
-  0,
-);
+// Excludes derived categories (e.g. Movie Stars) so a character shared
+// between two listed categories is only ever counted once.
+export const TOTAL_CHARACTER_COUNT = categories
+  .filter((c) => !c.derived)
+  .reduce((sum, c) => sum + c.characters.length, 0);

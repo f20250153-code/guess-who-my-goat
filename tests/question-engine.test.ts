@@ -1,5 +1,13 @@
 import { describe, it, expect } from "vitest";
-import { evaluateQuestion, getAvailableQuestions, getQuestionSplit, filterByAnswer } from "@/lib/question-engine";
+import {
+  evaluateQuestion,
+  getAvailableQuestions,
+  getQuestionSplit,
+  filterByAnswer,
+  isQuestionSupported,
+  isAttributeSupported,
+  filterQuestionsSupportedBy,
+} from "@/lib/question-engine";
 import type { Character } from "@/types/character";
 import type { Question } from "@/types/question";
 
@@ -152,5 +160,43 @@ describe("getQuestionSplit / filterByAnswer", () => {
 
     const noGroup = filterByAnswer(qGender, candidates, false);
     expect(noGroup.map((c) => c.id)).toEqual(["c2"]);
+  });
+});
+
+describe("missing data is 'unsupported', never a silent 'no'", () => {
+  it("isQuestionSupported is false when the attribute is absent, true when present", () => {
+    expect(isQuestionSupported(qBornBefore1980, carol)).toBe(false); // carol has no birthYear
+    expect(isQuestionSupported(qBornBefore1980, alice)).toBe(true);
+    expect(isQuestionSupported(qPlaysCricket, carol)).toBe(false); // carol has no sport
+  });
+
+  it("isAttributeSupported works against a bare attributes object", () => {
+    expect(isAttributeSupported(qBornBefore1980, carol.attributes)).toBe(false);
+    expect(isAttributeSupported(qBornBefore1980, alice.attributes)).toBe(true);
+  });
+
+  it("a hasTag question is always considered supported, even with no custom tags set", () => {
+    const qTag = { id: "t", text: "?", group: "career" as const, attribute: "custom" as const, operator: "hasTag" as const, value: "x" };
+    expect(isQuestionSupported(qTag, carol)).toBe(true);
+  });
+
+  it("getQuestionSplit counts unsupported candidates separately from yes/no", () => {
+    const split = getQuestionSplit(qBornBefore1980, [alice, bob, carol]);
+    expect(split.yes).toBe(1); // bob, born 1975 -> before 1980
+    expect(split.no).toBe(1); // alice, born 1990 -> not before 1980
+    expect(split.unsupported).toBe(1); // carol has no birthYear at all
+  });
+
+  it("filterByAnswer never eliminates a candidate the question can't be checked against, for either answer", () => {
+    const yesGroup = filterByAnswer(qBornBefore1980, [alice, bob, carol], true);
+    const noGroup = filterByAnswer(qBornBefore1980, [alice, bob, carol], false);
+    expect(yesGroup.map((c) => c.id)).toContain("c3"); // carol stays regardless of the answer
+    expect(noGroup.map((c) => c.id)).toContain("c3");
+  });
+
+  it("filterQuestionsSupportedBy narrows a pool to what a given attribute set can answer", () => {
+    const pool = [qGender, qBornBefore1980, qPlaysCricket];
+    const supported = filterQuestionsSupportedBy(pool, carol.attributes);
+    expect(supported.map((q) => q.id)).toEqual(["q1"]); // only gender, which carol has
   });
 });

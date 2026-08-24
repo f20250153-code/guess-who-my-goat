@@ -1,7 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles, Swords } from "lucide-react";
 import { Button } from "@/components/shared/Button";
 import { TOTAL_CHARACTER_COUNT, categories } from "@/data/categories";
 
@@ -72,6 +72,10 @@ export function Hero() {
             <Button href="/play" size="lg">
               Play Now
               <ArrowRight className="h-4.5 w-4.5" aria-hidden="true" />
+            </Button>
+            <Button href="/play/multiplayer" size="lg" variant="outline">
+              <Swords className="h-4.5 w-4.5" aria-hidden="true" />
+              Play Online
             </Button>
             <Button href="/create" size="lg" variant="secondary">
               Create a Pack

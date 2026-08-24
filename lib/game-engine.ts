@@ -1,7 +1,7 @@
 import type { Character } from "@/types/character";
 import type { GameDifficulty, GameMode, GameModeId, GameResult, GameState, GameStatus } from "@/types/game";
 import type { AskedQuestion, Question } from "@/types/question";
-import { evaluateQuestion, filterByAnswer } from "./question-engine";
+import { evaluateQuestion, filterByAnswer, isQuestionSupported } from "./question-engine";
 import { pickRandom } from "./character-utils";
 
 export const GAME_MODES: Record<GameModeId, GameMode> = {
@@ -99,7 +99,11 @@ export function canAskQuestion(state: GameState, question: Question): boolean {
     return false;
   }
   const alreadyAsked = state.askedQuestions.some((aq) => aq.question.id === question.id);
-  return !alreadyAsked;
+  if (alreadyAsked) return false;
+  // The question must be answerable for the actual secret — otherwise
+  // "no" (evaluateQuestion's missing-data fallback) would be presented as
+  // a real fact rather than what it actually is: no data either way.
+  return isQuestionSupported(question, state.secretCharacter);
 }
 
 /** Ask a question. The answer is derived from the secret character unless

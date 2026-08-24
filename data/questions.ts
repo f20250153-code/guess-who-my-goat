@@ -16,9 +16,20 @@ const PERSON_CATEGORIES = [
   "gamers",
   "tech-business",
   "indian-celebrities",
+  "movie-stars",
 ];
 
-export const questions: Question[] = [
+/** Some questions below (achievements like World Cup/Oscar/Grammy wins,
+ * cricket batting roles, and active/retired status) reference attributes
+ * the master spreadsheet doesn't currently carry per-character data for
+ * (see scripts/generate-data.ts's header comment) — they're kept here
+ * rather than deleted because they're perfectly valid questions and cost
+ * nothing to keep: `isQuestionSupported`/`isAttributeSupported`
+ * (lib/question-engine.ts) mean a question with no data behind it is
+ * simply never offered, never silently answered "no". They'll start
+ * working automatically the day that data is added to the spreadsheet
+ * and regenerated — no code change needed here. */
+const questionDefinitions: Question[] = [
   // ---------------------------------------------------------------- IDENTITY
   {
     id: "q-gender-male",
@@ -113,7 +124,17 @@ export const questions: Question[] = [
   {
     id: "q-is-entrepreneur",
     text: "Are they an entrepreneur?",
-    categoryIds: ["famous-personalities", "indian-celebrities", "gamers", "actors", "actresses", "singers"],
+    categoryIds: [
+      "famous-personalities",
+      "indian-celebrities",
+      "gamers",
+      "actors",
+      "actresses",
+      "singers",
+      "tech-business",
+      "footballers",
+      "basketball",
+    ],
     group: "career",
     attribute: "entrepreneur",
     operator: "equals",
@@ -127,6 +148,87 @@ export const questions: Question[] = [
     attribute: "director",
     operator: "equals",
     value: true,
+  },
+  {
+    id: "q-is-composer",
+    text: "Are they a composer?",
+    categoryIds: ["singers", "indian-celebrities"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Composer",
+  },
+  {
+    id: "q-is-poet",
+    text: "Are they a poet?",
+    categoryIds: ["indian-celebrities"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Poet",
+  },
+  {
+    id: "q-is-royal",
+    text: "Were they a king?",
+    categoryIds: ["indian-celebrities"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "King",
+  },
+  {
+    id: "q-is-emperor",
+    text: "Were they an emperor?",
+    categoryIds: ["indian-celebrities"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Emperor",
+  },
+  {
+    id: "q-is-educator",
+    text: "Are they known as an educator?",
+    categoryIds: ["indian-celebrities"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Educator",
+  },
+  {
+    id: "q-is-investor",
+    text: "Are they primarily known as an investor?",
+    categoryIds: ["tech-business"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Investor",
+  },
+  {
+    id: "q-is-executive",
+    text: "Are they a business executive?",
+    categoryIds: ["tech-business"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Executive",
+  },
+  {
+    id: "q-is-esports",
+    text: "Are they primarily an esports competitor?",
+    categoryIds: ["gamers"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Esports Player",
+  },
+  {
+    id: "q-is-manager",
+    text: "Have they worked as a manager?",
+    categoryIds: ["footballers"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Manager",
   },
   {
     id: "q-is-streamer",
@@ -503,7 +605,7 @@ export const questions: Question[] = [
   {
     id: "q-is-scientist",
     text: "Are they a scientist?",
-    categoryIds: ["famous-personalities"],
+    categoryIds: ["famous-personalities", "tech-business", "indian-celebrities"],
     group: "career",
     attribute: "profession",
     operator: "contains",
@@ -574,4 +676,81 @@ export const questions: Question[] = [
     operator: "greaterThanOrEqual",
     value: 2000,
   },
+
+  // --------------------------------------------------------- CAREER (more)
+  {
+    id: "q-is-activist",
+    text: "Are they known for activism?",
+    categoryIds: ["famous-personalities", "tech-business"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Activist",
+  },
+  {
+    id: "q-is-artist",
+    text: "Are they primarily known as a visual artist?",
+    categoryIds: ["famous-personalities"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Artist",
+  },
+  {
+    id: "q-is-economist",
+    text: "Are they an economist?",
+    categoryIds: ["famous-personalities", "indian-celebrities"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Economist",
+  },
+  {
+    id: "q-is-boxer",
+    text: "Have they competed as a boxer?",
+    categoryIds: ["famous-personalities", "indian-celebrities", "gamers"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Boxer",
+  },
+  {
+    id: "q-is-military-leader",
+    text: "Were they a military leader?",
+    categoryIds: ["famous-personalities", "indian-celebrities"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Military Leader",
+  },
+  {
+    id: "q-is-inventor",
+    text: "Are they known as an inventor?",
+    categoryIds: ["famous-personalities", "tech-business"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Inventor",
+  },
+  {
+    id: "q-is-religious-leader",
+    text: "Are they a religious leader?",
+    categoryIds: ["famous-personalities", "indian-celebrities"],
+    group: "career",
+    attribute: "profession",
+    operator: "contains",
+    value: "Religious Leader",
+  },
 ];
+
+/** Every question above that's scoped to "actors" or "actresses" also
+ * applies, unmodified, to the derived "movie-stars" category (Actors +
+ * Actresses — see data/categories.ts) — kept as a mechanical derivation
+ * here rather than hand-duplicating "movie-stars" into ~15 categoryIds
+ * arrays above, so it can never drift out of sync as those change. */
+export const questions: Question[] = questionDefinitions.map((q) => {
+  if (q.categoryIds && (q.categoryIds.includes("actors") || q.categoryIds.includes("actresses"))) {
+    return { ...q, categoryIds: [...q.categoryIds, "movie-stars"] };
+  }
+  return q;
+});

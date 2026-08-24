@@ -137,6 +137,26 @@ describe("canAskQuestion / game modes", () => {
   });
 });
 
+describe("canAskQuestion rejects questions the secret has no data for", () => {
+  it("refuses a question whose attribute is missing on the secret, and answerQuestion is then a no-op", () => {
+    const characters = makeCharacters(); // none of these set birthYear
+    let state = createGame({ categoryId: "test", mode: "classic", characters, forcedSecretId: "a" });
+    const qBirthYear: Question = {
+      id: "q-birth",
+      text: "Born before 2000?",
+      group: "age",
+      attribute: "birthYear",
+      operator: "lessThan",
+      value: 2000,
+    };
+    expect(canAskQuestion(state, qBirthYear)).toBe(false);
+    const before = state;
+    state = answerQuestion(state, qBirthYear);
+    expect(state).toBe(before); // rejected, not silently answered "no"
+    expect(state.questionCount).toBe(0);
+  });
+});
+
 describe("manual elimination", () => {
   it("moves a character to eliminated and back", () => {
     const characters = makeCharacters();
