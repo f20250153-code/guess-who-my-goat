@@ -98,6 +98,51 @@ export function isSmartQuestion(question: Question, candidates: Character[]): bo
   return ratio >= 0.35;
 }
 
+export type QuestionQualityLabel = "Excellent" | "Good" | "Fair" | "Poor";
+
+export interface QuestionQuality {
+  /** 0-1, where 1 is a perfect 50/50 split of the current candidates. */
+  score: number;
+  label: QuestionQualityLabel;
+  yes: number;
+  no: number;
+}
+
+/** Numeric upgrade of the smart-question check: score = 1 -
+ * abs(yes-no)/total, per the standard "closest to an even split gives
+ * the most information" heuristic. Used to rank and label candidate
+ * questions (BEST / GOOD) rather than just flag them individually. */
+export function getQuestionQuality(question: Question, candidates: Character[]): QuestionQuality {
+  const { yes, no } = getQuestionSplit(question, candidates);
+  const total = candidates.length;
+
+  if (total === 0 || yes === 0 || no === 0) {
+    return { score: 0, label: "Poor", yes, no };
+  }
+
+  const score = 1 - Math.abs(yes - no) / total;
+  const label: QuestionQualityLabel =
+    score >= 0.85 ? "Excellent" : score >= 0.65 ? "Good" : score >= 0.4 ? "Fair" : "Poor";
+
+  return { score, label, yes, no };
+}
+
+/** Ranks a pool of candidate questions by quality and returns the top
+ * `count`, each annotated with its quality. Questions with a 0-100% or
+ * 100-0% split (no information at all) are excluded outright rather than
+ * ranked last, since they're never worth asking. */
+export function rankQuestionsByQuality(
+  questions: Question[],
+  candidates: Character[],
+  count = 4,
+): Array<Question & { quality: QuestionQuality }> {
+  return questions
+    .map((q) => ({ ...q, quality: getQuestionQuality(q, candidates) }))
+    .filter((q) => q.quality.yes > 0 && q.quality.no > 0)
+    .sort((a, b) => b.quality.score - a.quality.score)
+    .slice(0, count);
+}
+
 /** Builds a question set on the fly for a user-created pack, since custom
  * characters don't populate the typed attribute fields the built-in bank
  * relies on. Includes gender (if any character sets it) plus one

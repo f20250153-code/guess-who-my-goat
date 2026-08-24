@@ -3,6 +3,8 @@ import type { AskedQuestion } from "./question";
 
 export type GameModeId = "classic" | "speed" | "limited" | "challenge";
 
+export type GameDifficulty = "easy" | "medium" | "hard" | "expert";
+
 export interface GameMode {
   id: GameModeId;
   name: string;
@@ -19,6 +21,11 @@ export interface GameState {
   gameId: string;
   categoryId: string;
   mode: GameModeId;
+  difficulty: GameDifficulty;
+  /** Seed used to generate this game's 30-character board. Persisted so
+   * a game can in principle be reproduced/debugged/shared — the
+   * foundation for future daily challenges. */
+  seed: string;
 
   allCharacters: Character[];
   possibleCharacters: Character[];
@@ -48,6 +55,7 @@ export interface GameResult {
   score: number;
   category: string;
   mode: GameModeId;
+  difficulty: GameDifficulty;
 }
 
 export interface Category {
@@ -58,4 +66,8 @@ export interface Category {
   emoji: string;
   theme: "violet" | "cyan" | "amber" | "rose" | "emerald" | "sky";
   characters: Character[];
+  /** How many characters a generated board should contain. Categories
+   * with fewer than this in their master pool fall back to using the
+   * full pool (see lib/board-generator.ts) rather than failing. */
+  targetBoardSize?: number;
 }

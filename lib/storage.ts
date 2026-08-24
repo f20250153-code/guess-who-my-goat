@@ -56,4 +56,5 @@ export const STORAGE_KEYS = {
   preferences: "preferences",
   customPacks: "custom-packs",
   recentGames: "recent-games",
+  boardHistory: "board-history",
 } as const;

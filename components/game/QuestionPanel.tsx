@@ -5,11 +5,17 @@ import { motion, AnimatePresence } from "framer-motion";
 import { ChevronDown, History, Loader2, MessageCircleQuestion, Send, Sparkles } from "lucide-react";
 import type { Character, CharacterAttributes } from "@/types/character";
 import type { AskedQuestion, Question, QuestionGroup } from "@/types/question";
-import { getAvailableQuestions, isSmartQuestion } from "@/lib/question-engine";
+import { getAvailableQuestions, rankQuestionsByQuality } from "@/lib/question-engine";
+import { generateBoardQuestions } from "@/lib/question-generator";
+import { questions as builtInQuestions } from "@/data/questions";
 import { QuestionButton } from "./QuestionButton";
 
 interface QuestionPanelProps {
   categoryId: string;
+  /** The full board this game started with (all 30, unaffected by
+   * eliminations) — used to generate board-specific dynamic questions.
+   * Falls back to `candidates` if omitted. */
+  board?: Character[];
   candidates: Character[];
   askedQuestions: AskedQuestion[];
   canAsk: boolean;
@@ -41,6 +47,7 @@ type AskState = "idle" | "loading" | "error";
 
 export function QuestionPanel({
   categoryId,
+  board,
   candidates,
   askedQuestions,
   canAsk,
@@ -57,24 +64,31 @@ export function QuestionPanel({
 
   const askedIds = useMemo(() => askedQuestions.map((aq) => aq.question.id), [askedQuestions]);
 
+  const effectivePool = useMemo(() => {
+    if (pool) return pool; // explicit override (custom packs) — don't add board-generated questions
+    return [...builtInQuestions, ...generateBoardQuestions(categoryId, board ?? candidates)];
+  }, [pool, categoryId, board, candidates]);
+
   const available = useMemo(
-    () => getAvailableQuestions(categoryId, askedIds, pool),
-    [categoryId, askedIds, pool],
+    () => getAvailableQuestions(categoryId, askedIds, effectivePool),
+    [categoryId, askedIds, effectivePool],
   );
 
-  const smartQuestions = useMemo(
-    () => available.filter((q) => isSmartQuestion(q, candidates)).slice(0, 3),
+  const rankedRecommended = useMemo(
+    () => rankQuestionsByQuality(available, candidates, 4),
     [available, candidates],
   );
+  const recommendedIds = useMemo(() => new Set(rankedRecommended.map((q) => q.id)), [rankedRecommended]);
 
   const grouped = useMemo(() => {
     const map = new Map<QuestionGroup, Question[]>();
     for (const q of available) {
+      if (recommendedIds.has(q.id)) continue; // shown once, in Recommended
       if (!map.has(q.group)) map.set(q.group, []);
       map.get(q.group)!.push(q);
     }
     return map;
-  }, [available]);
+  }, [available, recommendedIds]);
 
   async function handleCustomSubmit(e: React.FormEvent) {
     e.preventDefault();
@@ -175,14 +189,23 @@ export function QuestionPanel({
           {customHint && <p className="mt-2 text-xs text-warning">{customHint}</p>}
         </form>
 
-        {smartQuestions.length > 0 && (
+        {rankedRecommended.length > 0 && (
           <div className="mb-4">
             <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-text-faint">
               Recommended
             </p>
             <div className="flex flex-col gap-2">
-              {smartQuestions.map((q) => (
-                <QuestionButton key={q.id} question={q} smart disabled={!canAsk} onClick={() => onAsk(q)} />
+              {rankedRecommended.map((q, i) => (
+                <QuestionButton
+                  key={q.id}
+                  question={q}
+                  disabled={!canAsk}
+                  onClick={() => onAsk(q)}
+                  badge={{
+                    label: i === 0 ? "Best" : "Good",
+                    detail: `Eliminates ~${Math.min(q.quality.yes, q.quality.no)}/${candidates.length}`,
+                  }}
+                />
               ))}
             </div>
           </div>
@@ -196,13 +219,7 @@ export function QuestionPanel({
               </p>
               <div className="flex flex-col gap-2">
                 {groupQuestions.map((q) => (
-                  <QuestionButton
-                    key={q.id}
-                    question={q}
-                    smart={smartQuestions.some((sq) => sq.id === q.id)}
-                    disabled={!canAsk}
-                    onClick={() => onAsk(q)}
-                  />
+                  <QuestionButton key={q.id} question={q} disabled={!canAsk} onClick={() => onAsk(q)} />
                 ))}
               </div>
             </div>

@@ -1,5 +1,5 @@
 import type { Character } from "@/types/character";
-import type { GameMode, GameModeId, GameResult, GameState, GameStatus } from "@/types/game";
+import type { GameDifficulty, GameMode, GameModeId, GameResult, GameState, GameStatus } from "@/types/game";
 import type { AskedQuestion, Question } from "@/types/question";
 import { evaluateQuestion, filterByAnswer } from "./question-engine";
 import { pickRandom } from "./character-utils";
@@ -37,7 +37,16 @@ function generateGameId(): string {
 export interface CreateGameParams {
   categoryId: string;
   mode: GameModeId;
+  /** The already-generated board (typically from
+   * lib/board-generator.ts's generateGameBoard) — createGame turns a
+   * board into a live GameState, it doesn't do board selection itself,
+   * so the two concerns stay independently testable. */
   characters: Character[];
+  difficulty?: GameDifficulty;
+  /** The seed that produced `characters`, recorded for reproducibility.
+   * Auto-generated if omitted (e.g. custom packs, which aren't sampled
+   * from a larger pool so a seed is less meaningful). */
+  seed?: string;
   /** Force a specific secret character — used by tests. */
   forcedSecretId?: string;
 }
@@ -53,7 +62,14 @@ export function selectSecretCharacter(characters: Character[], forcedId?: string
   return pickRandom(characters);
 }
 
-export function createGame({ categoryId, mode, characters, forcedSecretId }: CreateGameParams): GameState {
+export function createGame({
+  categoryId,
+  mode,
+  characters,
+  difficulty = "medium",
+  seed,
+  forcedSecretId,
+}: CreateGameParams): GameState {
   if (characters.length < 2) {
     throw new Error("A game needs at least 2 characters to be playable.");
   }
@@ -63,6 +79,8 @@ export function createGame({ categoryId, mode, characters, forcedSecretId }: Cre
     gameId: generateGameId(),
     categoryId,
     mode,
+    difficulty,
+    seed: seed ?? `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`,
     allCharacters: characters,
     possibleCharacters: characters,
     eliminatedCharacters: [],
@@ -233,5 +251,6 @@ export function buildGameResult(state: GameState, categoryName: string): GameRes
     score: calculateScore(state),
     category: categoryName,
     mode: state.mode,
+    difficulty: state.difficulty,
   };
 }

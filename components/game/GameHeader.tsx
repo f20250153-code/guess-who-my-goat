@@ -60,9 +60,9 @@ export function GameHeader({
             {categoryName}
             <span className="text-text-faint">· {modeName}</span>
           </span>
-          <Button variant="ghost" size="sm" onClick={onRestart} aria-label="Restart game">
+          <Button variant="ghost" size="sm" onClick={onRestart} aria-label="Start a new board">
             <RotateCcw className="h-4 w-4" aria-hidden="true" />
-            <span className="hidden sm:inline">Restart</span>
+            <span className="hidden sm:inline">New Board</span>
           </Button>
         </div>
       </div>

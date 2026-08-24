@@ -1,7 +1,7 @@
 import type { LucideIcon } from "lucide-react";
 import { Gamepad2, Percent, Star, Target, Timer, Trophy } from "lucide-react";
 import type { PlayerStats } from "@/lib/stats";
-import { getAverageQuestions, getFavoriteCategory, getWinRate } from "@/lib/stats";
+import { getAverageQuestions, getCategoryBreakdown, getFavoriteCategory, getWinRate } from "@/lib/stats";
 import { getCategoryById } from "@/data/categories";
 
 interface GameStatsProps {
@@ -16,9 +16,18 @@ function formatTime(ms: number | null): string {
   return minutes > 0 ? `${minutes}m ${seconds}s` : `${seconds}s`;
 }
 
+const DIFFICULTY_LABELS: Record<string, string> = {
+  easy: "Easy",
+  medium: "Medium",
+  hard: "Hard",
+  expert: "Expert",
+};
+
 export function GameStats({ stats }: GameStatsProps) {
   const favoriteCategoryId = getFavoriteCategory(stats);
   const favoriteCategory = favoriteCategoryId ? getCategoryById(favoriteCategoryId) : null;
+  const categoryBreakdown = getCategoryBreakdown(stats).slice(0, 6);
+  const difficultyEntries = Object.entries(stats.difficultyPlayCounts).filter(([, count]) => count > 0);
 
   const cards: { icon: LucideIcon; label: string; value: string }[] = [
     { icon: Gamepad2, label: "Games Played", value: String(stats.gamesPlayed) },
@@ -51,6 +60,48 @@ export function GameStats({ stats }: GameStatsProps) {
           <div>
             <p className="text-xs text-text-muted">Favorite category</p>
             <p className="font-display text-sm font-bold">{favoriteCategory.name}</p>
+          </div>
+        </div>
+      )}
+
+      {categoryBreakdown.length > 0 && (
+        <div className="mt-3 rounded-[14px] border border-border bg-bg-elevated p-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-faint">
+            Performance by category
+          </p>
+          <div className="flex flex-col gap-2">
+            {categoryBreakdown.map((row) => {
+              const category = getCategoryById(row.categoryId);
+              return (
+                <div key={row.categoryId} className="flex items-center justify-between text-sm">
+                  <span className="flex items-center gap-2">
+                    <span aria-hidden="true">{category?.emoji ?? "🎮"}</span>
+                    {category?.name ?? row.categoryId}
+                  </span>
+                  <span className="font-mono text-xs text-text-muted">
+                    {row.won}/{row.played} won · {row.winRate}%
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {difficultyEntries.length > 0 && (
+        <div className="mt-3 rounded-[14px] border border-border bg-bg-elevated p-4">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-text-faint">
+            Games by difficulty
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {difficultyEntries.map(([difficulty, count]) => (
+              <span
+                key={difficulty}
+                className="rounded-full border border-border-strong bg-bg-elevated-2 px-3 py-1 text-xs font-semibold"
+              >
+                {DIFFICULTY_LABELS[difficulty] ?? difficulty}: {count}
+              </span>
+            ))}
           </div>
         </div>
       )}

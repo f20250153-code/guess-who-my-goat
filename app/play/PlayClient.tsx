@@ -3,8 +3,19 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Infinity as InfinityIcon, Zap, ListChecks, Flame, ArrowLeft, Eye, EyeOff, Users } from "lucide-react";
-import type { Category, GameModeId, GameState } from "@/types/game";
+import {
+  Infinity as InfinityIcon,
+  Zap,
+  ListChecks,
+  Flame,
+  ArrowLeft,
+  Eye,
+  EyeOff,
+  Users,
+  Shuffle,
+} from "lucide-react";
+import type { Category, GameDifficulty, GameModeId, GameState } from "@/types/game";
+import type { Character } from "@/types/character";
 import type { Question } from "@/types/question";
 import { categories, getCategoryById } from "@/data/categories";
 import {
@@ -18,6 +29,8 @@ import {
   buildGameResult,
   recordFreeformAnswer,
 } from "@/lib/game-engine";
+import { generateGameBoard } from "@/lib/board-generator";
+import { recordBoardUsage } from "@/lib/board-history";
 import { decodePack } from "@/lib/pack-utils";
 import { buildCustomPackQuestions } from "@/lib/question-engine";
 import { recordGameResult } from "@/lib/stats";
@@ -48,6 +61,20 @@ const MODE_ICON: Record<GameModeId, React.ComponentType<{ className?: string }>>
   limited: ListChecks,
   challenge: Flame,
 };
+
+const DIFFICULTY_OPTIONS: { id: GameDifficulty; label: string; description: string }[] = [
+  { id: "easy", label: "Easy", description: "Only the most recognizable characters" },
+  { id: "medium", label: "Medium", description: "A healthy mix of famous and lesser-known" },
+  { id: "hard", label: "Hard", description: "Deeper cuts, closer calls" },
+  { id: "expert", label: "Expert", description: "The full pool — nothing held back" },
+];
+
+function diversityLabel(score: number): string {
+  if (score >= 0.7) return "Excellent";
+  if (score >= 0.5) return "Good";
+  if (score >= 0.3) return "Fair";
+  return "Limited";
+}
 
 function packToCategory(pack: ReturnType<typeof decodePack>["pack"]): Category | null {
   if (!pack) return null;
@@ -102,6 +129,12 @@ export function PlayClient() {
   const [phase, setPhase] = useState<Phase>(initial.phase);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(initial.category);
   const [selectedMode, setSelectedMode] = useState<GameModeId>("classic");
+  const [difficulty, setDifficulty] = useState<GameDifficulty>("medium");
+  const [board, setBoard] = useState<Character[]>([]);
+  const [boardSeed, setBoardSeed] = useState<string>("");
+  const [boardMeta, setBoardMeta] = useState<{ usedFullPool: boolean; diversityScore: number } | null>(
+    null,
+  );
   const [secretPicker, setSecretPicker] = useState<SecretPicker>("random");
   const [friendSelectedId, setFriendSelectedId] = useState<string | null>(null);
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -109,21 +142,49 @@ export function PlayClient() {
   const [secondsLeft, setSecondsLeft] = useState<number | null>(null);
   const [guessModalOpen, setGuessModalOpen] = useState(false);
   const [questionDrawerOpen, setQuestionDrawerOpen] = useState(false);
+  const [restartConfirmOpen, setRestartConfirmOpen] = useState(false);
   const [loadError] = useState<string | null>(initial.error);
 
+  const regenerateBoard = useCallback((category: Category, diff: GameDifficulty) => {
+    const result = generateGameBoard({ category, difficulty: diff, avoidRecent: true });
+    setBoard(result.characters);
+    setBoardSeed(result.seed);
+    setBoardMeta({ usedFullPool: result.usedFullPool, diversityScore: result.diversityScore });
+  }, []);
+
+  // Generate the initial board immediately if we jumped straight to the
+  // mode screen via a ?category= or ?pack= URL. This needs an effect (not
+  // a lazy useState initializer) because board generation reads recent-play
+  // history from localStorage and uses non-deterministic randomness when
+  // unseeded — both would differ between server and client render and
+  // cause a hydration mismatch if computed synchronously up front.
+  useEffect(() => {
+    if (initial.phase === "mode" && initial.category && board.length === 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
+      regenerateBoard(initial.category, "medium");
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const startGame = useCallback(() => {
-    if (!selectedCategory) return;
+    if (!selectedCategory || board.length === 0) return;
     const state = createGame({
       categoryId: selectedCategory.id,
       mode: selectedMode,
-      characters: selectedCategory.characters,
+      difficulty,
+      seed: boardSeed,
+      characters: board,
       forcedSecretId: secretPicker === "friend" && friendSelectedId ? friendSelectedId : undefined,
     });
     setGameState(state);
     setPhase("playing");
     const modeConfig = GAME_MODES[selectedMode];
     setSecondsLeft(modeConfig.timeLimitSeconds ?? null);
-  }, [selectedCategory, selectedMode, secretPicker, friendSelectedId]);
+    recordBoardUsage(
+      selectedCategory.id,
+      board.map((c) => c.id),
+    );
+  }, [selectedCategory, selectedMode, difficulty, boardSeed, board, secretPicker, friendSelectedId]);
 
   // Countdown sequence: 3 -> 2 -> 1 -> GO -> start.
   useEffect(() => {
@@ -170,7 +231,17 @@ export function PlayClient() {
 
   function handleSelectCategory(category: Category) {
     setSelectedCategory(category);
+    regenerateBoard(category, difficulty);
     setPhase("mode");
+  }
+
+  function handleSelectDifficulty(diff: GameDifficulty) {
+    setDifficulty(diff);
+    if (selectedCategory) regenerateBoard(selectedCategory, diff);
+  }
+
+  function handleReroll() {
+    if (selectedCategory) regenerateBoard(selectedCategory, difficulty);
   }
 
   function handleSelectMode(mode: GameModeId) {
@@ -212,6 +283,7 @@ export function PlayClient() {
 
   function handleRestart() {
     if (!selectedCategory) return;
+    regenerateBoard(selectedCategory, difficulty);
     if (secretPicker === "friend") {
       setFriendSelectedId(null);
       setPhase("friend-handoff");
@@ -220,12 +292,35 @@ export function PlayClient() {
     }
   }
 
+  /** Called from the in-game header's Restart/New Board button. If the
+   * player has already made real progress this game, confirm first —
+   * a fresh board discards their current questions and elimination
+   * progress, per the spec's "ask for confirmation before replacing the
+   * board" requirement. A restart with zero progress just goes straight
+   * through, since there's nothing to lose. */
+  function handleRequestRestart() {
+    const hasProgress = gameState && gameState.status === "in-progress" && gameState.questionCount > 0;
+    if (hasProgress) {
+      setRestartConfirmOpen(true);
+    } else {
+      handleRestart();
+    }
+  }
+
+  function confirmRestart() {
+    setRestartConfirmOpen(false);
+    handleRestart();
+  }
+
   function handleChangeCategory() {
     setSelectedCategory(null);
     setGameState(null);
     setSecondsLeft(null);
     setSecretPicker("random");
     setFriendSelectedId(null);
+    setBoard([]);
+    setBoardSeed("");
+    setBoardMeta(null);
     setPhase("category");
   }
 
@@ -260,6 +355,10 @@ export function PlayClient() {
         <h1 className="mt-2 font-display text-4xl font-bold tracking-tight sm:text-5xl">
           Choose a category
         </h1>
+        <p className="mt-2 max-w-lg text-sm text-text-muted">
+          Every game pulls a fresh, balanced set of characters from each category&apos;s full pool
+          — you&apos;ll never see the whole thing at once.
+        </p>
         {loadError && (
           <p className="mt-3 rounded-[10px] border border-danger/40 bg-danger/10 px-4 py-2.5 text-sm text-danger">
             {loadError}
@@ -282,7 +381,11 @@ export function PlayClient() {
                 <h3 className="mt-3 font-display text-base font-bold leading-tight">{category.name}</h3>
                 <p className="mt-1 line-clamp-2 text-xs text-text-muted">{category.description}</p>
                 <p className="mt-3 font-mono text-xs font-semibold text-text-faint">
-                  {isEmpty ? "Coming soon" : `${category.characters.length} characters`}
+                  {isEmpty
+                    ? "Coming soon"
+                    : category.characters.length > 30
+                      ? `${category.characters.length} in pool · 30 per game`
+                      : `${category.characters.length} characters`}
                 </p>
               </button>
             );
@@ -346,6 +449,54 @@ export function PlayClient() {
           </p>
         )}
 
+        {selectedCategory.characters.length > (selectedCategory.targetBoardSize ?? 30) && (
+          <>
+            <div className="mt-3 rounded-[12px] border border-border bg-bg-elevated p-3">
+              <p className="mb-2 text-xs text-text-muted">Difficulty</p>
+              <div className="flex flex-wrap gap-1.5">
+                {DIFFICULTY_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.id}
+                    type="button"
+                    onClick={() => handleSelectDifficulty(opt.id)}
+                    title={opt.description}
+                    className={`rounded-[8px] px-3 py-1.5 text-xs font-semibold transition-colors ${
+                      difficulty === opt.id
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-bg-elevated-2 text-text-muted hover:text-text"
+                    }`}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-2 rounded-[12px] border border-border bg-bg-elevated p-3 text-xs">
+              <span className="text-text-muted">
+                Board ready: <span className="font-semibold text-text">{board.length}</span> selected
+                from <span className="font-semibold text-text">{selectedCategory.characters.length}</span>{" "}
+                in the pool
+                {boardMeta && (
+                  <>
+                    {" "}
+                    · Diversity:{" "}
+                    <span className="font-semibold text-text">{diversityLabel(boardMeta.diversityScore)}</span>
+                  </>
+                )}
+              </span>
+              <button
+                type="button"
+                onClick={handleReroll}
+                className="flex items-center gap-1.5 rounded-[8px] bg-bg-elevated-2 px-3 py-1.5 font-semibold text-text-muted hover:text-text"
+              >
+                <Shuffle className="h-3.5 w-3.5" aria-hidden="true" />
+                Reroll board
+              </button>
+            </div>
+          </>
+        )}
+
         <div className="mt-8 grid gap-4 sm:grid-cols-2">
           {Object.values(GAME_MODES).map((mode) => {
             const Icon = MODE_ICON[mode.id];
@@ -404,7 +555,7 @@ export function PlayClient() {
           </p>
         </div>
         <CharacterGrid
-          characters={selectedCategory.characters}
+          characters={board}
           eliminatedIds={new Set()}
           onToggleEliminate={() => {}}
           selectMode
@@ -471,6 +622,7 @@ export function PlayClient() {
   if (phase === "playing" && gameState && selectedCategory) {
     const questionPanelProps = {
       categoryId: selectedCategory.id,
+      board: gameState.allCharacters,
       candidates: gameState.possibleCharacters,
       askedQuestions: gameState.askedQuestions,
       canAsk,
@@ -490,7 +642,7 @@ export function PlayClient() {
           questionCount={gameState.questionCount}
           remainingCount={gameState.possibleCharacters.length}
           secondsLeft={secondsLeft}
-          onRestart={handleRestart}
+          onRestart={handleRequestRestart}
         />
 
         <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:grid lg:grid-cols-[1fr_340px] lg:items-start lg:gap-8">
@@ -535,6 +687,27 @@ export function PlayClient() {
           candidates={gameState.possibleCharacters}
           onConfirm={handleGuessConfirm}
         />
+
+        <Modal
+          open={restartConfirmOpen}
+          onClose={() => setRestartConfirmOpen(false)}
+          title="Start a new board?"
+          maxWidthClassName="max-w-sm"
+        >
+          <p className="text-sm text-text-muted">
+            You&apos;ve already asked {gameState.questionCount} question
+            {gameState.questionCount === 1 ? "" : "s"} this round. Starting over discards your
+            progress and deals a fresh 30-character board.
+          </p>
+          <div className="mt-5 flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setRestartConfirmOpen(false)}>
+              Keep playing
+            </Button>
+            <Button variant="danger" onClick={confirmRestart}>
+              Start over
+            </Button>
+          </div>
+        </Modal>
       </div>
     );
   }

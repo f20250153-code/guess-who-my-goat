@@ -9,7 +9,9 @@
     "lint": "eslint",
     "test": "vitest run",
     "test:watch": "vitest",
-    "fetch-images": "tsx scripts/fetch-images.ts"
+    "fetch-images": "tsx scripts/fetch-images.ts",
+    "validate:data": "tsx scripts/validate-data.ts",
+    "smoke-test": "tsx scripts/smoke-test.ts"
   },
   "dependencies": {
     "@fontsource/ibm-plex-mono": "^5.3.0",

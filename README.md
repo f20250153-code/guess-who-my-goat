@@ -16,12 +16,42 @@ Open http://localhost:3000.
 ## Other commands
 
 ```bash
-npm run build          # production build
-npm run start           # run the production build locally
-npm run lint             # eslint
-npm run test              # vitest (game engine + question engine)
+npm run build            # production build
+npm run start             # run the production build locally
+npm run lint               # eslint
+npm run test                # vitest (engine, board generator, question generator)
+npm run validate:data # data-integrity report (character/question counts, warnings)
+npm run smoke-test    # full-loop integration check across every category/difficulty
 npm run fetch-images  # populate real character photos (see below)
 ```
+
+## Smart boards, difficulty, and dynamic questions
+
+Every category has a full character **pool** (see counts below); each game samples a
+fresh, balanced **30-character board** from it via `lib/board-generator.ts`:
+
+- Weighted random selection that deprioritizes characters used in your last ~45
+  games (per category) and gently favors ones you haven't seen much, so the
+  whole pool gets explored over time rather than the same faces every round.
+- A diversity pass that nudges the board toward a better spread of gender,
+  nationality, and role/position when the pool supports it.
+- Four difficulty tiers (Easy/Medium/Hard/Expert) that filter by a fame-tier
+  heuristic — Easy stays to the most recognizable characters, Expert opens the
+  full pool.
+- Optional seeded generation (`generateGameBoard({ seed })`) for reproducible
+  boards — the foundation for a future daily-challenge mode.
+- Graceful fallback: categories with fewer characters than the board size
+  just use the full pool.
+
+The question list combines the static bank in `data/questions.ts` with
+questions **generated on the fly** from whatever's actually on the current
+board (`lib/question-generator.ts`) — e.g. if the board happens to include
+players from 5 different countries, you get real "Are they from X?"
+questions for exactly those 5, not a fixed pre-written list. Because it only
+ever asks about values present on the real board, it can't fabricate
+anything. Questions are also scored and ranked (`getQuestionQuality`) so the
+"Recommended" section shows the ones that split the board most evenly, with
+BEST/GOOD badges and an "eliminates ~N/30" hint.
 
 ## Optional: freeform AI-judged questions
 
@@ -99,9 +129,12 @@ vercel
 - `components/game/` — gameplay UI (character grid/card, question panel,
   guess modal, results, header)
 - `components/home/` and `components/shared/` — marketing + shared UI
-- `data/` — category registry, 310 built-in characters, question bank,
-  `character-images.json` (real-photo lookup, empty until you run the script)
-- `lib/` — pure game/question engine, storage, stats, custom-pack utils
-- `scripts/fetch-images.ts` — populates real character photos from Wikipedia
+- `data/` — category registry, 544 built-in characters, static question
+  bank, `character-images.json` (real-photo lookup, empty until you run the script)
+- `lib/` — game engine, question engine + dynamic question generation,
+  smart board generator, seeded RNG, popularity/difficulty, board history
+  (recency + usage tracking), storage, stats, custom-pack utils
+- `scripts/` — `fetch-images.ts` (real photos), `validate-data.ts` (data
+  integrity report), `smoke-test.ts` (full-loop integration check)
 - `types/` — shared TypeScript types
-- `tests/` — Vitest unit tests for the engine
+- `tests/` — Vitest unit tests (engine, board generator, question generator)

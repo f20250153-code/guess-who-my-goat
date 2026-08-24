@@ -76,5 +76,11 @@ export interface Character {
   categoryId: string;
   image?: string;
   description?: string;
+  /** Rough 1-100 fame tier used by the board generator's difficulty
+   * filtering — higher is more universally recognizable. Optional: most
+   * existing characters don't set this explicitly and get a sensible
+   * mid-tier default (see lib/popularity.ts) rather than requiring every
+   * record to be hand-tuned. */
+  popularity?: number;
   attributes: CharacterAttributes;
 }
